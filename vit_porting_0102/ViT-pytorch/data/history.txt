@@ -1,0 +1,12 @@
+naixinw@gbnwx-pod004-2:/localdata/naixinw/gc_tutorial/vit_porting_0102/ViT-pytorch/data/cifar-10-batches-py$ tree
+.
+|-- batches.meta
+|-- data_batch_1
+|-- data_batch_2
+|-- data_batch_3
+|-- data_batch_4
+|-- data_batch_5
+|-- readme.html
+`-- test_batch
+
+0 directories, 8 files
