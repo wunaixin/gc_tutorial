@@ -123,8 +123,7 @@ class ComputeLoss:
         # self.device = device
 
     # def __call__(self, p, targets):  # predictions, targets
-    # def __call__(self, p, targets, tcls, tbox, indices, anchors):
-    def __call__(self, p, tcls, tbox, indices, anchors):
+    def __call__(self, p, targets, tcls, tbox, indices, anchors):
         lcls = torch.zeros(1)  # class loss
         lbox = torch.zeros(1)  # box loss
         lobj = torch.zeros(1)  # object loss
@@ -178,9 +177,9 @@ class ComputeLoss:
         lcls *= self.hyp['cls']
         bs = tobj.shape[0]  # batch size
 
-        return (lbox + lobj + lcls) * bs, torch.cat((lbox, lobj, lcls)).detach()
+        # return (lbox + lobj + lcls) * bs, torch.cat((lbox, lobj, lcls)).detach()
         # return (lbox + lobj + lcls), torch.cat((lbox, lobj, lcls)).detach()           #bm
-        # return poptorch.identity_loss((lbox + lobj + lcls), reduction='none'), torch.cat((lbox, lobj, lcls)).detach()           #bm
+        return poptorch.identity_loss((lbox + lobj + lcls), reduction='none'), torch.cat((lbox, lobj, lcls)).detach()           #bm
 
 
     def build_targets(self, p, targets):

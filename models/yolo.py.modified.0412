@@ -6,10 +6,8 @@ Usage:
     $ python path/to/models/yolo.py --cfg yolov5s.yaml
 """
 #bm
-import pdb
-from turtle import forward          
-import poptorch  
-from utils.loss import ComputeLoss
+import pdb          
+import poptorch     
 
 import argparse
 import os
@@ -136,71 +134,6 @@ class Detect(nn.Module):
     #     return grid, anchor_grid
 
 
-#bm 
-class TrainingModelWithLoss(nn.Module):
-    def __init__(self, model) -> None:
-        super().__init__()
-        self.model = model
-        self.loss = ComputeLoss(self.model)
-        # self.loss = nn.NLLLoss(reduction='mean')
-
-    def get_output(self, input_data):
-        output = self.model(input_data)
-        return output
-
-    # def forward(self, input_data, labels):
-    def forward(self, input_data, labels, tcls, tbox, indices, anchors):
-        output = self.model(input_data)
-        # loss, loss_items = self.loss(output, labels)
-        loss, loss_items = self.loss(output, labels, tcls, tbox, indices, anchors)
-        # return output, loss, loss_items   # 'poptorch_cpp_error': Couldn't find a loss in graph!
-        return output, poptorch.identity_loss(loss, reduction='none'), loss_items
-
-#bm
-class PiplelinedModel(nn.Module):
-    def __init__(self, model) -> None:
-        super().__init__()
-        # self.model = TrainingModelWithLoss(model)
-        self.model = model
-        self.loss = ComputeLoss(model)
-        dict1 = {name: layer for name, layer in model.named_modules()}
-        pipeline = ['model.5', 'model.7', 'model.18']
-        for i, m in enumerate(pipeline):
-            # poptorch.BeginBlock(ipu_id=i+1, layer_to_call=model.named_modules()[m])  #TypeError: 'generator' object is not subscriptable
-            dict1[m] = poptorch.BeginBlock(ipu_id=i+1, layer_to_call=dict1[m])
-
-    def get_output(self, input_data):
-        # output = self.model.get_output(input_data)
-        output = self.model(input_data)
-        return output
-
-    # def forward(self, input_data, labels, tcls, tbox, indices, anchors):
-    def forward(self, input_data, tcls, tbox, indices, anchors):
-        output = self.model(input_data)
-        # loss, loss_items = self.loss(output, labels, tcls, tbox, indices, anchors)
-        loss, loss_items = self.loss(output, tcls, tbox, indices, anchors)
-        # return self.model(input_data, labels, tcls, tbox, indices, anchors)
-        return output, poptorch.identity_loss(loss, reduction='none'), loss_items
-
-
-#bm
-# # class PiplelinedModel(nn.Module):
-# class PiplelinedModel(TrainingModelWithLoss):
-#     def __init__(self, model) -> None:
-#         # super().__init__()
-#         super().__init__(model)
-#         dict1 = {name: layer for name, layer in model.named_modules()}
-#         pipeline = ['model.5', 'model.7', 'model.18']
-#         for i, m in enumerate(pipeline):
-#             # poptorch.BeginBlock(ipu_id=i+1, layer_to_call=model.named_modules()[m])  #TypeError: 'generator' object is not subscriptable
-#             dict1[m] = poptorch.BeginBlock(ipu_id=i+1, layer_to_call=dict1[m])
-
-
-
-
-
-
-
 class Model(nn.Module):
     def __init__(self, cfg='yolov5s.yaml', ch=3, nc=None, anchors=None):  # model, input channels, number of classes
         super().__init__()
@@ -241,6 +174,10 @@ class Model(nn.Module):
         self.info()
         LOGGER.info('')
 
+    # def forward(self, x, augment=False, profile=False, visualize=False):
+    #     if augment:
+    #         return self._forward_augment(x)  # augmented inference, None
+    #     return self._forward_once(x, profile, visualize)  # single-scale inference, train
 
     #bm
     def forward_val(self, x):
@@ -299,20 +236,11 @@ class Model(nn.Module):
 
         return x        
 
-    # def forward(self, x, augment=False, profile=False, visualize=False):
-    #     if augment:
-    #         return self._forward_augment(x)  # augmented inference, None
-    #     return self._forward_once(x, profile, visualize)  # single-scale inference, train
-
     #bm
     def forward(self, x):
         return self._forward_once(x)  # single-scale inference, train
-    #bm
-    # def forward(self, x, label):
-    #     return self._forward_once(x, label)  # single-scale inference, train
 
     #bm
-    # def _forward_once(self, x, label):
     def _forward_once(self, x):
         # pdb.set_trace()
         y = []
