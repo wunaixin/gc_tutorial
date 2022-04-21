@@ -7,7 +7,6 @@ Usage:
 """
 #bm
 import pdb
-from turtle import forward          
 import poptorch  
 from utils.loss import ComputeLoss
 
