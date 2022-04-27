@@ -173,13 +173,21 @@ class PiplelinedModel(nn.Module):
         output = self.model(input_data)
         return output
 
-    # def forward(self, input_data, labels, tcls, tbox, indices, anchors):
-    def forward(self, input_data, tcls, tbox, indices, anchors):
+    def forward(self, input_data, loss, loss_items):
         output = self.model(input_data)
-        # loss, loss_items = self.loss(output, labels, tcls, tbox, indices, anchors)
-        loss, loss_items = self.loss(output, tcls, tbox, indices, anchors)
-        # return self.model(input_data, labels, tcls, tbox, indices, anchors)
-        return output, poptorch.identity_loss(loss, reduction='none'), loss_items
+        # return output, poptorch.identity_loss(loss, reduction='none'), loss_items
+        # return poptorch.identity_loss(loss, reduction='none'), loss_items
+        # return poptorch.identity_loss(loss[0], reduction='none'), loss_items[0]       
+        return output, poptorch.identity_loss(loss[0], reduction='none'), loss_items[0]       
+
+    # # def forward(self, input_data, labels, tcls, tbox, indices, anchors):
+    # def forward(self, input_data, tcls, tbox, indices, anchors):
+    #     # output = self.model(input_data)
+    #     output = self.model.model(input_data)
+    #     # loss, loss_items = self.loss(output, labels, tcls, tbox, indices, anchors)
+    #     loss, loss_items = self.loss(output, tcls, tbox, indices, anchors)
+    #     # return self.model(input_data, labels, tcls, tbox, indices, anchors)
+    #     return output, poptorch.identity_loss(loss, reduction='none'), loss_items
 
 
 #bm

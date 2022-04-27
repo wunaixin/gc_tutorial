@@ -148,7 +148,8 @@ class ComputeLoss:
                 lbox += (1.0 - iou).mean()  # iou loss
 
                 # Objectness
-                iou = iou.detach().clamp(0).type(tobj.dtype)
+                # iou = iou.detach().clamp(0).type(tobj.dtype)
+                iou = iou.clamp(0)          #bm
                 if self.sort_obj_iou:
                     j = iou.argsort()
                     b, a, gj, gi, iou = b[j], a[j], gj[j], gi[j], iou[j]
@@ -178,7 +179,8 @@ class ComputeLoss:
         lcls *= self.hyp['cls']
         bs = tobj.shape[0]  # batch size
 
-        return (lbox + lobj + lcls) * bs, torch.cat((lbox, lobj, lcls)).detach()
+        # return (lbox + lobj + lcls) * bs, torch.cat((lbox, lobj, lcls)).detach()
+        return (lbox + lobj + lcls) * bs, torch.cat((lbox, lobj, lcls))                 #bm
         # return (lbox + lobj + lcls), torch.cat((lbox, lobj, lcls)).detach()           #bm
         # return poptorch.identity_loss((lbox + lobj + lcls), reduction='none'), torch.cat((lbox, lobj, lcls)).detach()           #bm
 
