@@ -1,0 +1,29 @@
+import onnx
+from onnx import helper
+import pdb
+
+# file1 = 'onnx_model/yolov5s_bs9_fp32.onnx'
+# file1 = 'onnx_model/yolov5s_bs22_fishing_nms.onnx'
+file1 = '/localdata/cn-field-engineering/naixinw/yolov5_porting/yolov5-release-ipu-v0.2/my.proto.01_binary'
+# file1 = 'my01_add_output.onnx'
+m = onnx.load(file1)
+g = m.graph
+
+# g.output.append(onnx.onnx_ml_pb2.ValueInfoProto(
+#     name="model/model/24/Nms:3",
+#     type={'tensor_type': {
+#         'elem_type': 6,
+#         'shape': {
+#             1
+#         }
+#     }}
+# ))
+o1 = helper.make_tensor_value_info(
+    name='model/model/24/Nms:3',
+    elem_type=6,
+    shape=[22, 8]
+)
+g.output.append(o1)
+
+pdb.set_trace()
+print('done')

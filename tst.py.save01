@@ -1,0 +1,35 @@
+import popart
+import pdb
+
+
+if __name__=='__main__':
+    builder = popart.Builder(
+        # "/localdata/cn-field-engineering/naixinw/yolov5_porting/yolov5-release-ipu-v0.2/my.proto.01_binary",
+        # "my01_add_output.onnx",
+        "my02_add_outputs.onnx",
+        opsets={"ai.onnx": 10, "ai.graphcore": 1, "ai.onnx.ml": 1},
+    )
+    proto = builder.getModelProto()
+
+    # output_names = ["model/Cast:0"]
+    # output_names = ["model/model/24/Cast:0"]
+    output_names = [
+        "model/model/24/Nms:0",
+        "model/model/24/Cast:0/21",
+        "model/model/24/Cast:0/22",
+        "model/model/24/Nms:3",
+        "model/model/24/Nms:4",
+    ]
+
+    data_flow = popart.DataFlow(
+        batchesPerStep=1,
+        anchorTensors={o: popart.AnchorReturnType("All") for o in output_names}
+    )
+
+    sess = popart.InferenceSession(
+        fnModel=proto,
+        dataFlow=data_flow,
+        deviceInfo=popart.DeviceManager().acquireDeviceById(10)
+    )
+    pdb.set_trace()
+    print('done')
